@@ -1,7 +1,7 @@
-DROP TABLE IF EXISTS contact_list_entries;
-DROP TABLE IF EXISTS contacts;
-DROP TABLE IF EXISTS contact_lists;
-DROP TABLE IF EXISTS users;
+--DROP TABLE IF EXISTS contact_list_entries;
+--DROP TABLE IF EXISTS contacts;
+--DROP TABLE IF EXISTS contact_lists;
+--DROP TABLE IF EXISTS users;
 
 CREATE TABLE users (
     id serial NOT NULL,
@@ -24,7 +24,7 @@ CREATE TABLE contacts (
     user_id INTEGER NOT NULL,
     name character varying NOT NULL,
     surname character varying NOT NULL,
-    phone INTEGER NOT NULL,
+    email character varying NOT NULL,
     PRIMARY KEY (id),
     FOREIGN KEY (user_id) REFERENCES users (id) ON UPDATE CASCADE ON DELETE CASCADE
 );
