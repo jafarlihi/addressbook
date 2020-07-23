@@ -6,11 +6,11 @@
 - HTTP server port (if you change this and use Docker Compose then remember to change the exposed port in docker-compose.yml as well)
 
 ### Schema
-Running addressbook will make it automatically try to run the `schema.sql` on the database, and continue serving the API even if it fails because of already-existing tables.
+Running addressbook will make it automatically try to run the `schema.sql` on the database. API will be served regardless of whether schema initialization fails or succeeds.
 
 ### Running
 addressbook can be run either manually or using Docker Compose.
-To run manually, bring up your PostgreSQL and run `go build` to build the project (you need Go 1.14+ installed), then run the resulting executable `addressbook`.
+To run manually, bring up your PostgreSQL, run `go build` to build the project, then run the resulting executable `addressbook`.
 To run with Docker Compose run `sudo docker-compose up`.
 
 ### API
@@ -43,5 +43,5 @@ When creating a contact you should pass in a JSON payload with fields "name", "s
 /api/contact-list/{id}/contact DELETE -> Delete a contact from contact-list
 
 When creating a contact-list you should pass in a JSON payload with field "name".
-When searching for contact-lists by name you should pass in a JSON payload with field "term" (referring to search term).
-When adding or deleting a contact to/from contact-list you should pass in a JSON payload with field "id" (referring to contact ID).
+When searching for contact-lists by name you should pass in a JSON payload with field "term", referring to search term.
+When adding/deleting a contact to/from contact-list you should pass in a JSON payload with field "id", referring to contact ID. Also note that "id" should be of JSON Number type.

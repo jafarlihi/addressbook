@@ -7,7 +7,7 @@ import (
 )
 
 func CreateContactList(userID uint32, name string) (int64, error) {
-	sql := "INSERT INTO contacts (user_id, name) VALUES ($1, $2) RETURNING id"
+	sql := "INSERT INTO contact_lists (user_id, name) VALUES ($1, $2) RETURNING id"
 	var id int64
 	err := database.Database.QueryRow(sql, userID, name).Scan(&id)
 	if err != nil {
