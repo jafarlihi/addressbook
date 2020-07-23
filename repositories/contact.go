@@ -58,3 +58,23 @@ func GetContactsByUserID(userID uint32) ([]*models.Contact, error) {
 	}
 	return contacts, nil
 }
+
+func GetContactsOfContactList(contactListID uint32) ([]*models.Contact, error) {
+	sql := "SELECT id, user_id, name, surname, email FROM contacts WHERE id IN (SELECT contact FROM contact_list_entries WHERE contact_list = $1)"
+	rows, err := database.Database.Query(sql, contactListID)
+	if err != nil {
+		logger.Log.Error("Failed to SELECT contacts, error: " + err.Error())
+		return nil, err
+	}
+	defer rows.Close()
+	contacts := make([]*models.Contact, 0)
+	for rows.Next() {
+		contact := &models.Contact{}
+		if err := rows.Scan(&contact.ID, &contact.UserID, &contact.Name, &contact.Surname, &contact.Email); err != nil {
+			logger.Log.Error("Failed to scan SELECTed row of contacts, error: " + err.Error())
+			return nil, err
+		}
+		contacts = append(contacts, contact)
+	}
+	return contacts, nil
+}
