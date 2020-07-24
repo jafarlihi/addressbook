@@ -31,8 +31,11 @@ All operations on contacts and contact-lists can only be done by the user that h
 
 #### Contact
 /api/contact POST -> Create contact
+
 /api/contact/{id} DELETE -> Delete contact
+
 /api/contact GET -> Get contacts
+
 /api/contact/{id} GET -> Get contact
 
 
