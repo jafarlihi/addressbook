@@ -23,7 +23,9 @@ To run with Docker Compose run `sudo docker-compose up`.
 
 
 There are two user endpoints, one for registering and one for obtaining JWT tokens.
+
 You can register by POSTing to `/api/user` with JSON payload containing "username", "email", and "password" fields. Password can't be shorter than 6 characters and email has to be in valid format.
+
 You can create and obtain a new JWT token by POSTing to `/api/user/token` with "username" (or "email") and "password" JSON fields. All subsequent API endpoints expect you to send this token in header as `Authorization: Bearer [token]`.
 
 
@@ -60,5 +62,7 @@ When creating a contact you should pass in a JSON payload with fields "name", "s
 
 
 When creating a contact-list you should pass in a JSON payload with field "name".
+
 When searching for contact-lists by name you should pass in a JSON payload with field "term", referring to search term.
+
 When adding/deleting a contact to/from contact-list you should pass in a JSON payload with field "id", referring to contact ID. Also note that "id" should be of JSON Number type.
