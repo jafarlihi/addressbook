@@ -2,16 +2,17 @@ package handlers_test
 
 import (
 	"fmt"
+	"net/http"
+	"net/http/httptest"
+	"strings"
+	"testing"
+
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/jafarlihi/addressbook/config"
 	"github.com/jafarlihi/addressbook/database"
 	"github.com/jafarlihi/addressbook/handlers"
 	"golang.org/x/crypto/bcrypt"
-	"net/http"
-	"net/http/httptest"
-	"strings"
-	"testing"
 )
 
 func TestCreateUserWithNoBody(t *testing.T) {
@@ -187,7 +188,7 @@ func TestCreateToken(t *testing.T) {
 		t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 
-	expected := `{"token":"` + tokenString + `","user":{"id":`+fmt.Sprint(id)+`,"username":"`+username+`","email":"`+email+`","password":""}}`
+	expected := `{"token":"` + tokenString + `","user":{"id":` + fmt.Sprint(id) + `,"username":"` + username + `","email":"` + email + `","password":""}}`
 	if rr.Body.String() != expected {
 		t.Errorf("Handler returned unexpected body: got %v want %v", rr.Body.String(), expected)
 	}

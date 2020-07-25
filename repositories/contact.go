@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"database/sql"
+
 	"github.com/jafarlihi/addressbook/logger"
 	"github.com/jafarlihi/addressbook/models"
 )

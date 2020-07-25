@@ -3,9 +3,10 @@ package service
 import (
 	"errors"
 	"fmt"
+	"strings"
+
 	"github.com/dgrijalva/jwt-go"
 	"github.com/jafarlihi/addressbook/config"
-	"strings"
 )
 
 func ParseAuthorizationHeader(header string) (uint32, error) {

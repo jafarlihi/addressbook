@@ -1,9 +1,10 @@
 package repositories_test
 
 import (
+	"testing"
+
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/jafarlihi/addressbook/repositories"
-	"testing"
 )
 
 func TestCreateContactList(t *testing.T) {

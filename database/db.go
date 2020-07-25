@@ -2,11 +2,12 @@ package database
 
 import (
 	"database/sql"
+	"io/ioutil"
+	"os"
+
 	"github.com/jafarlihi/addressbook/config"
 	"github.com/jafarlihi/addressbook/logger"
 	_ "github.com/lib/pq"
-	"io/ioutil"
-	"os"
 )
 
 var Database *sql.DB

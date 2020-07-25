@@ -3,15 +3,16 @@ package handlers
 import (
 	"database/sql"
 	"encoding/json"
+	"io"
+	"net/http"
+	"regexp"
+
 	"github.com/dgrijalva/jwt-go"
 	"github.com/jafarlihi/addressbook/config"
 	"github.com/jafarlihi/addressbook/database"
 	"github.com/jafarlihi/addressbook/models"
 	"github.com/jafarlihi/addressbook/repositories"
 	"golang.org/x/crypto/bcrypt"
-	"io"
-	"net/http"
-	"regexp"
 )
 
 type accountCreationRequest struct {

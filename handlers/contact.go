@@ -2,14 +2,15 @@ package handlers
 
 import (
 	"encoding/json"
-	"github.com/gorilla/mux"
-	"github.com/jafarlihi/addressbook/database"
-	"github.com/jafarlihi/addressbook/repositories"
-	"github.com/jafarlihi/addressbook/service"
 	"io"
 	"net/http"
 	"regexp"
 	"strconv"
+
+	"github.com/gorilla/mux"
+	"github.com/jafarlihi/addressbook/database"
+	"github.com/jafarlihi/addressbook/repositories"
+	"github.com/jafarlihi/addressbook/service"
 )
 
 type contactCreationRequest struct {

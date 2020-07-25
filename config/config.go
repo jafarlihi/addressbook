@@ -2,8 +2,9 @@ package config
 
 import (
 	"encoding/json"
-	"github.com/jafarlihi/addressbook/logger"
 	"os"
+
+	"github.com/jafarlihi/addressbook/logger"
 )
 
 type jwtConfig struct {
