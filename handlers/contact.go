@@ -41,7 +41,7 @@ func CreateContact(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, `{"error": "`+err.Error()+`"}`)
 		return
 	}
-	id, err := repositories.CreateContact(uint32(userID), ccr.Name, ccr.Surname, ccr.Email)
+	id, err := repositories.CreateContact(userID, ccr.Name, ccr.Surname, ccr.Email)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		io.WriteString(w, `{"error": "Failed to create the contact"}`)
@@ -73,7 +73,7 @@ func DeleteContact(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, `{"error": "Requested contact does not exist"}`)
 		return
 	}
-	if contact.UserID != uint32(userID) {
+	if contact.UserID != userID {
 		w.WriteHeader(http.StatusUnauthorized)
 		io.WriteString(w, `{"error": "Can't delete contact belonging to another user"}`)
 		return
@@ -94,7 +94,7 @@ func GetContacts(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, `{"error": "`+err.Error()+`"}`)
 		return
 	}
-	contacts, err := repositories.GetContactsByUserID(uint32(userID))
+	contacts, err := repositories.GetContactsByUserID(userID)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		io.WriteString(w, `{"error": "Failed to get the contacts"}`)
@@ -131,7 +131,7 @@ func GetContact(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, `{"error": "Requested contact does not exist"}`)
 		return
 	}
-	if contact.UserID != uint32(userID) {
+	if contact.UserID != userID {
 		w.WriteHeader(http.StatusUnauthorized)
 		io.WriteString(w, `{"error": "Can't fetch contact belonging to another user"}`)
 		return

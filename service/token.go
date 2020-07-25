@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func ParseAuthorizationHeader(header string) (float64, error) {
+func ParseAuthorizationHeader(header string) (uin32, error) {
 	tokenFields := strings.Fields(header)
 	if len(tokenFields) != 2 {
 		return 0, errors.New("Token is missing")
@@ -29,5 +29,5 @@ func ParseAuthorizationHeader(header string) (float64, error) {
 	} else {
 		return 0, errors.New("Invalid token")
 	}
-	return userID, nil
+	return uint32(userID), nil
 }

@@ -33,7 +33,7 @@ func CreateContactList(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, `{"error": "`+err.Error()+`"}`)
 		return
 	}
-	id, err := repositories.CreateContactList(uint32(userID), ccr.Name)
+	id, err := repositories.CreateContactList(userID, ccr.Name)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		io.WriteString(w, `{"error": "Failed to create the contact-list"}`)
@@ -65,7 +65,7 @@ func DeleteContactList(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, `{"error": "Requested contact-list does not exist"}`)
 		return
 	}
-	if contactList.UserID != uint32(userID) {
+	if contactList.UserID != userID {
 		w.WriteHeader(http.StatusUnauthorized)
 		io.WriteString(w, `{"error": "Can't delete contact-list belonging to another user"}`)
 		return
@@ -86,7 +86,7 @@ func GetContactLists(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, `{"error": "`+err.Error()+`"}`)
 		return
 	}
-	contactLists, err := repositories.GetContactListsByUserID(uint32(userID))
+	contactLists, err := repositories.GetContactListsByUserID(userID)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		io.WriteString(w, `{"error": "Failed to get the contact-lists"}`)
@@ -123,7 +123,7 @@ func GetContactList(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, `{"error": "Requested contact-list does not exist"}`)
 		return
 	}
-	if contactList.UserID != uint32(userID) {
+	if contactList.UserID != userID {
 		w.WriteHeader(http.StatusUnauthorized)
 		io.WriteString(w, `{"error": "Can't fetch contact-list belonging to another user"}`)
 		return
@@ -161,7 +161,7 @@ func SearchContactLists(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, `{"error": "`+err.Error()+`"}`)
 		return
 	}
-	contactLists, err := repositories.SearchContactListsByName(uint32(userID), csr.Term)
+	contactLists, err := repositories.SearchContactListsByName(userID, csr.Term)
 	jsonResponse, err := json.Marshal(contactLists)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -193,7 +193,7 @@ func ListContactsOfContactList(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, `{"error": "Requested contact-list does not exist"}`)
 		return
 	}
-	if contactList.UserID != uint32(userID) {
+	if contactList.UserID != userID {
 		w.WriteHeader(http.StatusUnauthorized)
 		io.WriteString(w, `{"error": "Can't fetch contact-list belonging to another user"}`)
 		return
@@ -251,7 +251,7 @@ func AddToContactList(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, `{"error": "Requested contact-list does not exist"}`)
 		return
 	}
-	if contactList.UserID != uint32(userID) {
+	if contactList.UserID != userID {
 		w.WriteHeader(http.StatusUnauthorized)
 		io.WriteString(w, `{"error": "Can't fetch contact-list belonging to another user"}`)
 		return
@@ -262,7 +262,7 @@ func AddToContactList(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, `{"error": "Requested contact does not exist"}`)
 		return
 	}
-	if contact.UserID != uint32(userID) {
+	if contact.UserID != userID {
 		w.WriteHeader(http.StatusUnauthorized)
 		io.WriteString(w, `{"error": "Can't fetch contact belonging to another user"}`)
 		return
@@ -313,7 +313,7 @@ func RemoveFromContactList(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, `{"error": "Requested contact-list does not exist"}`)
 		return
 	}
-	if contactList.UserID != uint32(userID) {
+	if contactList.UserID != userID {
 		w.WriteHeader(http.StatusUnauthorized)
 		io.WriteString(w, `{"error": "Can't fetch contact-list belonging to another user"}`)
 		return
