@@ -187,7 +187,7 @@ func TestCreateToken(t *testing.T) {
 		t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 
-	expected := `{"token":"` + tokenString + `","user":{"id":1,"username":"user","email":"valid@mail.com","password":""}}`
+	expected := `{"token":"` + tokenString + `","user":{"id":`+fmt.Sprint(id)+`,"username":"`+username+`","email":"`+email+`","password":""}}`
 	if rr.Body.String() != expected {
 		t.Errorf("Handler returned unexpected body: got %v want %v", rr.Body.String(), expected)
 	}
