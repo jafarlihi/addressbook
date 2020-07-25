@@ -1,11 +1,11 @@
-package service_test
+package services_test
 
 import (
 	"testing"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/jafarlihi/addressbook/config"
-	"github.com/jafarlihi/addressbook/service"
+	"github.com/jafarlihi/addressbook/services"
 )
 
 func TestParseAuthorizationHeader(t *testing.T) {
@@ -25,7 +25,7 @@ func TestParseAuthorizationHeader(t *testing.T) {
 
 	header := "Bearer " + tokenString
 
-	returnedID, err := service.ParseAuthorizationHeader(header)
+	returnedID, err := services.ParseAuthorizationHeader(header)
 	if err != nil {
 		t.Errorf("ParseAuthorizationHeader returned error %s", err.Error())
 	}

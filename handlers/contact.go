@@ -10,7 +10,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/jafarlihi/addressbook/database"
 	"github.com/jafarlihi/addressbook/repositories"
-	"github.com/jafarlihi/addressbook/service"
+	"github.com/jafarlihi/addressbook/services"
 )
 
 type contactCreationRequest struct {
@@ -37,7 +37,7 @@ func CreateContact(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, `{"error": "Provided email address is malformed"}`)
 		return
 	}
-	userID, err := service.ParseAuthorizationHeader(r.Header.Get("Authorization"))
+	userID, err := services.ParseAuthorizationHeader(r.Header.Get("Authorization"))
 	if err != nil {
 		w.WriteHeader(http.StatusUnauthorized)
 		io.WriteString(w, `{"error": "`+err.Error()+`"}`)
@@ -63,7 +63,7 @@ func DeleteContact(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, `{"error": "Provided ID can't be parsed as an integer"}`)
 		return
 	}
-	userID, err := service.ParseAuthorizationHeader(r.Header.Get("Authorization"))
+	userID, err := services.ParseAuthorizationHeader(r.Header.Get("Authorization"))
 	if err != nil {
 		w.WriteHeader(http.StatusUnauthorized)
 		io.WriteString(w, `{"error": "`+err.Error()+`"}`)
@@ -90,7 +90,7 @@ func DeleteContact(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetContacts(w http.ResponseWriter, r *http.Request) {
-	userID, err := service.ParseAuthorizationHeader(r.Header.Get("Authorization"))
+	userID, err := services.ParseAuthorizationHeader(r.Header.Get("Authorization"))
 	if err != nil {
 		w.WriteHeader(http.StatusUnauthorized)
 		io.WriteString(w, `{"error": "`+err.Error()+`"}`)
@@ -121,7 +121,7 @@ func GetContact(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, `{"error": "Provided ID can't be parsed as an integer"}`)
 		return
 	}
-	userID, err := service.ParseAuthorizationHeader(r.Header.Get("Authorization"))
+	userID, err := services.ParseAuthorizationHeader(r.Header.Get("Authorization"))
 	if err != nil {
 		w.WriteHeader(http.StatusUnauthorized)
 		io.WriteString(w, `{"error": "`+err.Error()+`"}`)
