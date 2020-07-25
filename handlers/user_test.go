@@ -3,8 +3,11 @@ package handlers_test
 import (
 	"fmt"
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/dgrijalva/jwt-go"
+	"github.com/jafarlihi/addressbook/config"
 	"github.com/jafarlihi/addressbook/database"
 	"github.com/jafarlihi/addressbook/handlers"
+	"golang.org/x/crypto/bcrypt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -128,6 +131,63 @@ func TestCreateUser(t *testing.T) {
 	}
 
 	expected := `{"id":` + fmt.Sprint(id) + `}`
+	if rr.Body.String() != expected {
+		t.Errorf("Handler returned unexpected body: got %v want %v", rr.Body.String(), expected)
+	}
+}
+
+func TestCreateToken(t *testing.T) {
+	username := "user"
+	password := "password"
+
+	req, err := http.NewRequest("POST", "/api/user/token", strings.NewReader(`{"username": "`+username+`", "password": "`+password+`"}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("An error '%s' was not expected when opening a stub database connection", err)
+	}
+	defer db.Close()
+
+	database.Database = db
+
+	var id uint32
+	id = 1
+	email := "valid@mail.com"
+	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		t.Fatal("Failed to hash password")
+	}
+
+	rows := sqlmock.NewRows([]string{"id", "username", "email", "password"}).AddRow(id, username, email, string(passwordHash))
+	mock.ExpectQuery("^SELECT (.*) FROM users").WithArgs(username).WillReturnRows(rows)
+
+	jwtSecret := "secret"
+	config.Config.Jwt.SigningSecret = jwtSecret
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"userID": id,
+	})
+	tokenString, err := token.SignedString([]byte(jwtSecret))
+	if err != nil {
+		t.Fatal("Failed to create JWT token")
+	}
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(handlers.CreateToken)
+	handler.ServeHTTP(rr, req)
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("There were unfulfilled expectations: %s", err)
+	}
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+
+	expected := `{"token":"` + tokenString + `","user":{"id":1,"username":"user","email":"valid@mail.com","password":""}}`
 	if rr.Body.String() != expected {
 		t.Errorf("Handler returned unexpected body: got %v want %v", rr.Body.String(), expected)
 	}
