@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"github.com/gorilla/mux"
+	"github.com/jafarlihi/addressbook/database"
 	"github.com/jafarlihi/addressbook/repositories"
 	"github.com/jafarlihi/addressbook/service"
 	"io"
@@ -33,7 +34,7 @@ func CreateContactList(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, `{"error": "`+err.Error()+`"}`)
 		return
 	}
-	id, err := repositories.CreateContactList(userID, ccr.Name)
+	id, err := repositories.CreateContactList(database.Database, userID, ccr.Name)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		io.WriteString(w, `{"error": "Failed to create the contact-list"}`)
@@ -59,7 +60,7 @@ func DeleteContactList(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, `{"error": "`+err.Error()+`"}`)
 		return
 	}
-	contactList, err := repositories.GetContactList(uint32(id))
+	contactList, err := repositories.GetContactList(database.Database, uint32(id))
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		io.WriteString(w, `{"error": "Requested contact-list does not exist"}`)
@@ -70,7 +71,7 @@ func DeleteContactList(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, `{"error": "Can't delete contact-list belonging to another user"}`)
 		return
 	}
-	err = repositories.DeleteContactList(uint32(id))
+	err = repositories.DeleteContactList(database.Database, uint32(id))
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		io.WriteString(w, `{"error": "Failed to delete the contact-list"}`)
@@ -86,7 +87,7 @@ func GetContactLists(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, `{"error": "`+err.Error()+`"}`)
 		return
 	}
-	contactLists, err := repositories.GetContactListsByUserID(userID)
+	contactLists, err := repositories.GetContactListsByUserID(database.Database, userID)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		io.WriteString(w, `{"error": "Failed to get the contact-lists"}`)
@@ -117,7 +118,7 @@ func GetContactList(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, `{"error": "`+err.Error()+`"}`)
 		return
 	}
-	contactList, err := repositories.GetContactList(uint32(id))
+	contactList, err := repositories.GetContactList(database.Database, uint32(id))
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		io.WriteString(w, `{"error": "Requested contact-list does not exist"}`)
@@ -161,7 +162,7 @@ func SearchContactLists(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, `{"error": "`+err.Error()+`"}`)
 		return
 	}
-	contactLists, err := repositories.SearchContactListsByName(userID, csr.Term)
+	contactLists, err := repositories.SearchContactListsByName(database.Database, userID, csr.Term)
 	jsonResponse, err := json.Marshal(contactLists)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -187,7 +188,7 @@ func ListContactsOfContactList(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, `{"error": "`+err.Error()+`"}`)
 		return
 	}
-	contactList, err := repositories.GetContactList(uint32(id))
+	contactList, err := repositories.GetContactList(database.Database, uint32(id))
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		io.WriteString(w, `{"error": "Requested contact-list does not exist"}`)
@@ -198,7 +199,7 @@ func ListContactsOfContactList(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, `{"error": "Can't fetch contact-list belonging to another user"}`)
 		return
 	}
-	contacts, err := repositories.GetContactsOfContactList(contactList.ID)
+	contacts, err := repositories.GetContactsOfContactList(database.Database, contactList.ID)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		io.WriteString(w, `{"error": "Failed to fetch contacts"}`)
@@ -245,7 +246,7 @@ func AddToContactList(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, `{"error": "`+err.Error()+`"}`)
 		return
 	}
-	contactList, err := repositories.GetContactList(uint32(id))
+	contactList, err := repositories.GetContactList(database.Database, uint32(id))
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		io.WriteString(w, `{"error": "Requested contact-list does not exist"}`)
@@ -256,7 +257,7 @@ func AddToContactList(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, `{"error": "Can't fetch contact-list belonging to another user"}`)
 		return
 	}
-	contact, err := repositories.GetContact(acr.ID)
+	contact, err := repositories.GetContact(database.Database, acr.ID)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		io.WriteString(w, `{"error": "Requested contact does not exist"}`)
@@ -267,7 +268,7 @@ func AddToContactList(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, `{"error": "Can't fetch contact belonging to another user"}`)
 		return
 	}
-	err = repositories.AddContactToContactList(contactList.ID, contact.ID)
+	err = repositories.AddContactToContactList(database.Database, contactList.ID, contact.ID)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		io.WriteString(w, `{"error": "Failed to add contact to contact-list"}`)
@@ -307,7 +308,7 @@ func RemoveFromContactList(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, `{"error": "`+err.Error()+`"}`)
 		return
 	}
-	contactList, err := repositories.GetContactList(uint32(id))
+	contactList, err := repositories.GetContactList(database.Database, uint32(id))
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		io.WriteString(w, `{"error": "Requested contact-list does not exist"}`)
@@ -318,7 +319,7 @@ func RemoveFromContactList(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, `{"error": "Can't fetch contact-list belonging to another user"}`)
 		return
 	}
-	err = repositories.DeleteContactFromContactList(contactList.ID, dcr.ID)
+	err = repositories.DeleteContactFromContactList(database.Database, contactList.ID, dcr.ID)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		io.WriteString(w, `{"error": "Failed to add contact to contact-list"}`)

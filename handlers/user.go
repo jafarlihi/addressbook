@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/jafarlihi/addressbook/config"
+	"github.com/jafarlihi/addressbook/database"
 	"github.com/jafarlihi/addressbook/models"
 	"github.com/jafarlihi/addressbook/repositories"
 	"golang.org/x/crypto/bcrypt"
@@ -48,7 +49,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, `{"error": "Failed to hash the password"}`)
 		return
 	}
-	id, err := repositories.CreateUser(acr.Username, acr.Email, string(passwordHash))
+	id, err := repositories.CreateUser(database.Database, acr.Username, acr.Email, string(passwordHash))
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		io.WriteString(w, `{"error": "Failed to create the user"}`)
@@ -90,9 +91,9 @@ func CreateToken(w http.ResponseWriter, r *http.Request) {
 	}
 	var user *models.User
 	if tcr.Username != "" {
-		user, err = repositories.GetUserByUsername(tcr.Username)
+		user, err = repositories.GetUserByUsername(database.Database, tcr.Username)
 	} else {
-		user, err = repositories.GetUserByEmail(tcr.Email)
+		user, err = repositories.GetUserByEmail(database.Database, tcr.Email)
 	}
 	if err != nil {
 		switch err {

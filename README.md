@@ -15,6 +15,9 @@ To run manually, bring up your PostgreSQL, run `go build` to build the project, 
 
 To run with Docker Compose run `sudo docker-compose up`.
 
+#### Tests
+To run tests run "go test -v ./...".
+
 ### API
 #### User
 /api/user POST -> Create user

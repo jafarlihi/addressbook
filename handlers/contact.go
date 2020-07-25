@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"github.com/gorilla/mux"
+	"github.com/jafarlihi/addressbook/database"
 	"github.com/jafarlihi/addressbook/repositories"
 	"github.com/jafarlihi/addressbook/service"
 	"io"
@@ -41,7 +42,7 @@ func CreateContact(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, `{"error": "`+err.Error()+`"}`)
 		return
 	}
-	id, err := repositories.CreateContact(userID, ccr.Name, ccr.Surname, ccr.Email)
+	id, err := repositories.CreateContact(database.Database, userID, ccr.Name, ccr.Surname, ccr.Email)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		io.WriteString(w, `{"error": "Failed to create the contact"}`)
@@ -67,7 +68,7 @@ func DeleteContact(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, `{"error": "`+err.Error()+`"}`)
 		return
 	}
-	contact, err := repositories.GetContact(uint32(id))
+	contact, err := repositories.GetContact(database.Database, uint32(id))
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		io.WriteString(w, `{"error": "Requested contact does not exist"}`)
@@ -78,7 +79,7 @@ func DeleteContact(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, `{"error": "Can't delete contact belonging to another user"}`)
 		return
 	}
-	err = repositories.DeleteContact(uint32(id))
+	err = repositories.DeleteContact(database.Database, uint32(id))
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		io.WriteString(w, `{"error": "Failed to delete the contact"}`)
@@ -94,7 +95,7 @@ func GetContacts(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, `{"error": "`+err.Error()+`"}`)
 		return
 	}
-	contacts, err := repositories.GetContactsByUserID(userID)
+	contacts, err := repositories.GetContactsByUserID(database.Database, userID)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		io.WriteString(w, `{"error": "Failed to get the contacts"}`)
@@ -125,7 +126,7 @@ func GetContact(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, `{"error": "`+err.Error()+`"}`)
 		return
 	}
-	contact, err := repositories.GetContact(uint32(id))
+	contact, err := repositories.GetContact(database.Database, uint32(id))
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		io.WriteString(w, `{"error": "Requested contact does not exist"}`)
