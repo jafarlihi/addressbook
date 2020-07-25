@@ -1,4 +1,5 @@
 # addressbook
+(this is a work interview assignment)
 ### Config
 `config.json` file has 3 parameters that need to be configured:
 - JWT signing secret
