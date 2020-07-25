@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func ParseAuthorizationHeader(header string) (uin32, error) {
+func ParseAuthorizationHeader(header string) (uint32, error) {
 	tokenFields := strings.Fields(header)
 	if len(tokenFields) != 2 {
 		return 0, errors.New("Token is missing")
