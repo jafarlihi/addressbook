@@ -1,13 +1,14 @@
 package main
 
 import (
+	"net/http"
+
 	gorillaHandlers "github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/jafarlihi/addressbook/config"
 	"github.com/jafarlihi/addressbook/database"
 	"github.com/jafarlihi/addressbook/handlers"
 	"github.com/jafarlihi/addressbook/logger"
-	"net/http"
 )
 
 func main() {
