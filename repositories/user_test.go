@@ -84,7 +84,7 @@ func TestCreateUser(t *testing.T) {
 
 	returnedID, err := repositories.CreateUser(db, username, email, password)
 	if err != nil {
-		t.Errorf("Error was not expected while fetching the user: %s", err)
+		t.Errorf("Error was not expected while creating the user: %s", err)
 	}
 
 	if err := mock.ExpectationsWereMet(); err != nil {

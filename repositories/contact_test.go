@@ -26,7 +26,7 @@ func TestCreateContact(t *testing.T) {
 
 	returnedID, err := repositories.CreateContact(db, userID, name, surname, email)
 	if err != nil {
-		t.Errorf("Error was not expected while fetching the user: %s", err)
+		t.Errorf("Error was not expected while creating the contact: %s", err)
 	}
 
 	if err := mock.ExpectationsWereMet(); err != nil {
