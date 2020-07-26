@@ -9,6 +9,7 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/gorilla/mux"
 	"github.com/jafarlihi/addressbook/config"
 	"github.com/jafarlihi/addressbook/database"
 	"github.com/jafarlihi/addressbook/handlers"
@@ -125,6 +126,123 @@ func TestCreateContact(t *testing.T) {
 	}
 
 	expected := `{"id":` + fmt.Sprint(contactID) + `}`
+	if rr.Body.String() != expected {
+		t.Errorf("Handler returned unexpected body: got %v want %v", rr.Body.String(), expected)
+	}
+}
+
+func TestDeleteContact(t *testing.T) {
+	jwtSecret := "secret"
+	config.Config.Jwt.SigningSecret = jwtSecret
+
+	var userID uint32
+	userID = 1
+	var contactID uint32
+	contactID = 2
+	name := "name"
+	surname := "surname"
+	email := "valid@mail.com"
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"userID": userID,
+	})
+	tokenString, err := token.SignedString([]byte(jwtSecret))
+	if err != nil {
+		t.Fatal("Failed to create JWT token")
+	}
+
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("An error '%s' was not expected when opening a stub database connection", err)
+	}
+	defer db.Close()
+
+	database.Database = db
+
+	rows := sqlmock.NewRows([]string{"id", "user_id", "name", "surname", "email"}).AddRow(contactID, userID, name, surname, email)
+	mock.ExpectQuery("^SELECT (.*) FROM contacts").WithArgs(contactID).WillReturnRows(rows)
+	mock.ExpectQuery("^DELETE FROM contacts").WithArgs(contactID).WillReturnRows(rows)
+
+	req, err := http.NewRequest("DELETE", "/api/contact/"+fmt.Sprint(contactID), strings.NewReader(""))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req.Header.Add("Authorization", "Bearer "+tokenString)
+
+	rr := httptest.NewRecorder()
+	router := mux.NewRouter()
+	router.HandleFunc("/api/contact/{id}", handlers.DeleteContact).Methods("DELETE")
+	router.ServeHTTP(rr, req)
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("There were unfulfilled expectations: %s", err)
+	}
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+
+	expected := ""
+	if rr.Body.String() != expected {
+		t.Errorf("Handler returned unexpected body: got %v want %v", rr.Body.String(), expected)
+	}
+}
+
+func TestDeleteContactBelongingToAnotherUser(t *testing.T) {
+	jwtSecret := "secret"
+	config.Config.Jwt.SigningSecret = jwtSecret
+
+	var userID uint32
+	userID = 1
+	var userID2 uint32
+	userID2 = 2
+	var contactID uint32
+	contactID = 2
+	name := "name"
+	surname := "surname"
+	email := "valid@mail.com"
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"userID": userID,
+	})
+	tokenString, err := token.SignedString([]byte(jwtSecret))
+	if err != nil {
+		t.Fatal("Failed to create JWT token")
+	}
+
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("An error '%s' was not expected when opening a stub database connection", err)
+	}
+	defer db.Close()
+
+	database.Database = db
+
+	rows := sqlmock.NewRows([]string{"id", "user_id", "name", "surname", "email"}).AddRow(contactID, userID2, name, surname, email)
+	mock.ExpectQuery("^SELECT (.*) FROM contacts").WithArgs(contactID).WillReturnRows(rows)
+
+	req, err := http.NewRequest("DELETE", "/api/contact/"+fmt.Sprint(contactID), strings.NewReader(""))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req.Header.Add("Authorization", "Bearer "+tokenString)
+
+	rr := httptest.NewRecorder()
+	router := mux.NewRouter()
+	router.HandleFunc("/api/contact/{id}", handlers.DeleteContact).Methods("DELETE")
+	router.ServeHTTP(rr, req)
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("There were unfulfilled expectations: %s", err)
+	}
+
+	if status := rr.Code; status != http.StatusUnauthorized {
+		t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusUnauthorized)
+	}
+
+	expected := `{"error": "Can't delete contact belonging to another user"}`
 	if rr.Body.String() != expected {
 		t.Errorf("Handler returned unexpected body: got %v want %v", rr.Body.String(), expected)
 	}
