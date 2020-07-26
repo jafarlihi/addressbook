@@ -24,11 +24,11 @@ To run with Docker Compose run `sudo docker-compose up`.
 
 #### Tests
 
-To run tests run "go test -v ./...".
+To run tests run `go test -v ./...`.
 
 #### Demo
 
-`./demo` directory contains a Python script that exercises all API endpoints and displays requests/responses. Run `pip install -r requirements.txt` and then run `python demo.py`.
+`./demo` directory contains a Python script that exercises all API endpoints and displays requests/responses. Run `pip install -r requirements.txt` and then run `python demo.py` after bringing the API up.
 
 ### API
 
