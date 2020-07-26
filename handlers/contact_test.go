@@ -78,10 +78,10 @@ func TestCreateContact(t *testing.T) {
 	jwtSecret := "secret"
 	config.Config.Jwt.SigningSecret = jwtSecret
 
-	var contactID uint32
-	contactID = 2
 	var userID uint32
 	userID = 1
+	var contactID uint32
+	contactID = 2
 	name := "name"
 	surname := "surname"
 	email := "valid@mail.com"
