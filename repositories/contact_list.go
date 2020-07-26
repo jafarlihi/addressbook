@@ -32,7 +32,7 @@ func GetContactList(db *sql.DB, id uint32) (*models.ContactList, error) {
 
 func DeleteContactList(db *sql.DB, id uint32) error {
 	sql := "DELETE FROM contact_lists WHERE id = $1"
-	_, err := db.Exec(sql, id)
+	_, err := db.Query(sql, id)
 	if err != nil {
 		logger.Log.Error("Failed to DELETE a contact-list, error: " + err.Error())
 		return err
@@ -94,7 +94,7 @@ func AddContactToContactList(db *sql.DB, contactListID uint32, contactID uint32)
 
 func DeleteContactFromContactList(db *sql.DB, contactListID uint32, contactID uint32) error {
 	sql := "DELETE FROM contact_list_entries WHERE contact_list = $1 AND contact = $2"
-	_, err := db.Exec(sql, contactListID, contactID)
+	_, err := db.Query(sql, contactListID, contactID)
 	if err != nil {
 		logger.Log.Error("Failed to DELETE a contact-list-entry, error: " + err.Error())
 		return err

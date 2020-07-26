@@ -32,7 +32,7 @@ func GetContact(db *sql.DB, id uint32) (*models.Contact, error) {
 
 func DeleteContact(db *sql.DB, id uint32) error {
 	sql := "DELETE FROM contacts WHERE id = $1"
-	_, err := db.Exec(sql, id)
+	_, err := db.Query(sql, id)
 	if err != nil {
 		logger.Log.Error("Failed to DELETE a contact, error: " + err.Error())
 		return err
