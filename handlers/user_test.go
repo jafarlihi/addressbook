@@ -193,3 +193,49 @@ func TestCreateToken(t *testing.T) {
 		t.Errorf("Handler returned unexpected body: got %v want %v", rr.Body.String(), expected)
 	}
 }
+
+func TestCreateTokenWithWrongPassword(t *testing.T) {
+	username := "user"
+	password := "password"
+
+	req, err := http.NewRequest("POST", "/api/user/token", strings.NewReader(`{"username": "`+username+`", "password": "wrongPassword"}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("An error '%s' was not expected when opening a stub database connection", err)
+	}
+	defer db.Close()
+
+	database.Database = db
+
+	var id uint32
+	id = 1
+	email := "valid@mail.com"
+	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		t.Fatal("Failed to hash password")
+	}
+
+	rows := sqlmock.NewRows([]string{"id", "username", "email", "password"}).AddRow(id, username, email, string(passwordHash))
+	mock.ExpectQuery("^SELECT (.*) FROM users").WithArgs(username).WillReturnRows(rows)
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(handlers.CreateToken)
+	handler.ServeHTTP(rr, req)
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("There were unfulfilled expectations: %s", err)
+	}
+
+	if status := rr.Code; status != http.StatusBadRequest {
+		t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusBadRequest)
+	}
+
+	expected := `{"error": "Wrong password"}`
+	if rr.Body.String() != expected {
+		t.Errorf("Handler returned unexpected body: got %v want %v", rr.Body.String(), expected)
+	}
+}

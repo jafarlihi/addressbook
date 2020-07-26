@@ -21,7 +21,7 @@ func TestCreateContactListNoBody(t *testing.T) {
 	}
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(handlers.CreateContact)
+	handler := http.HandlerFunc(handlers.CreateContactList)
 	handler.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusBadRequest {
@@ -29,6 +29,46 @@ func TestCreateContactListNoBody(t *testing.T) {
 	}
 
 	expected := `{"error": "Request body couldn't be parsed as JSON"}`
+	if rr.Body.String() != expected {
+		t.Errorf("Handler returned unexpected body: got %v want %v", rr.Body.String(), expected)
+	}
+}
+
+func TestCreateContactListWithNoNameField(t *testing.T) {
+	req, err := http.NewRequest("POST", "/api/contact-list", strings.NewReader(`{"notName": "something"}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(handlers.CreateContactList)
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusBadRequest {
+		t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusBadRequest)
+	}
+
+	expected := `{"error": "Name field is missing"}`
+	if rr.Body.String() != expected {
+		t.Errorf("Handler returned unexpected body: got %v want %v", rr.Body.String(), expected)
+	}
+}
+
+func TestCreateContactListWithNoToken(t *testing.T) {
+	req, err := http.NewRequest("POST", "/api/contact-list", strings.NewReader(`{"name": "something"}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(handlers.CreateContactList)
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusUnauthorized {
+		t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusUnauthorized)
+	}
+
+	expected := `{"error": "Token is missing"}`
 	if rr.Body.String() != expected {
 		t.Errorf("Handler returned unexpected body: got %v want %v", rr.Body.String(), expected)
 	}
