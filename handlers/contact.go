@@ -12,34 +12,20 @@ import (
 	"github.com/jafarlihi/addressbook/repositories"
 )
 
-type contactCreationRequest struct {
-	Name    string `json:"name"`
-	Surname string `json:"surname"`
-	Email   string `json:"email"`
-}
-
-func CreateContact(w http.ResponseWriter, r *http.Request, userID uint32) {
-	var ccr contactCreationRequest
-	err := json.NewDecoder(r.Body).Decode(&ccr)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		io.WriteString(w, `{"error": "Request body couldn't be parsed as JSON"}`)
-		return
-	}
-
-	if ccr.Name == "" || ccr.Surname == "" || ccr.Email == "" {
+func CreateContact(w http.ResponseWriter, r *http.Request, userID uint32, body Request) {
+	if body.Name == "" || body.Surname == "" || body.Email == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		io.WriteString(w, `{"error": "Name, surname, and/or email field(s) is/are missing"}`)
 		return
 	}
 
-	if !regexp.MustCompile(`^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$`).MatchString(ccr.Email) {
+	if !regexp.MustCompile(`^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$`).MatchString(body.Email) {
 		w.WriteHeader(http.StatusBadRequest)
 		io.WriteString(w, `{"error": "Provided email address is malformed"}`)
 		return
 	}
 
-	id, err := repositories.CreateContact(database.Database, userID, ccr.Name, ccr.Surname, ccr.Email)
+	id, err := repositories.CreateContact(database.Database, userID, body.Name, body.Surname, body.Email)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		io.WriteString(w, `{"error": "Failed to create the contact"}`)

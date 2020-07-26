@@ -12,26 +12,14 @@ import (
 	"github.com/jafarlihi/addressbook/services"
 )
 
-type contactListCreationRequest struct {
-	Name string `json:"name"`
-}
-
-func CreateContactList(w http.ResponseWriter, r *http.Request, userID uint32) {
-	var ccr contactListCreationRequest
-	err := json.NewDecoder(r.Body).Decode(&ccr)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		io.WriteString(w, `{"error": "Request body couldn't be parsed as JSON"}`)
-		return
-	}
-
-	if ccr.Name == "" {
+func CreateContactList(w http.ResponseWriter, r *http.Request, userID uint32, body Request) {
+	if body.Name == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		io.WriteString(w, `{"error": "Name field is missing"}`)
 		return
 	}
 
-	id, err := repositories.CreateContactList(database.Database, userID, ccr.Name)
+	id, err := repositories.CreateContactList(database.Database, userID, body.Name)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		io.WriteString(w, `{"error": "Failed to create the contact-list"}`)
@@ -134,26 +122,14 @@ func GetContactList(w http.ResponseWriter, r *http.Request, userID uint32) {
 	io.WriteString(w, string(jsonResponse))
 }
 
-type contactListSearchRequest struct {
-	Term string `json:"term"`
-}
-
-func SearchContactLists(w http.ResponseWriter, r *http.Request, userID uint32) {
-	var csr contactListSearchRequest
-	err := json.NewDecoder(r.Body).Decode(&csr)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		io.WriteString(w, `{"error": "Request body couldn't be parsed as JSON"}`)
-		return
-	}
-
-	if csr.Term == "" {
+func SearchContactLists(w http.ResponseWriter, r *http.Request, userID uint32, body Request) {
+	if body.Term == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		io.WriteString(w, `{"error": "Term field is missing"}`)
 		return
 	}
 
-	contactLists, err := repositories.SearchContactListsByName(database.Database, userID, csr.Term)
+	contactLists, err := repositories.SearchContactListsByName(database.Database, userID, body.Term)
 
 	jsonResponse, err := json.Marshal(contactLists)
 	if err != nil {
@@ -205,20 +181,8 @@ func GetContactsOfContactList(w http.ResponseWriter, r *http.Request, userID uin
 	io.WriteString(w, string(jsonResponse))
 }
 
-type addToContactListRequest struct {
-	ID uint32 `json:"id"`
-}
-
-func AddToContactList(w http.ResponseWriter, r *http.Request, userID uint32) {
-	var acr addToContactListRequest
-	err := json.NewDecoder(r.Body).Decode(&acr)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		io.WriteString(w, `{"error": "Request body couldn't be parsed as JSON"}`)
-		return
-	}
-
-	if acr.ID == 0 {
+func AddToContactList(w http.ResponseWriter, r *http.Request, userID uint32, body Request) {
+	if body.ID == 0 {
 		w.WriteHeader(http.StatusBadRequest)
 		io.WriteString(w, `{"error": "ID field is missing"}`)
 		return
@@ -246,7 +210,7 @@ func AddToContactList(w http.ResponseWriter, r *http.Request, userID uint32) {
 		return
 	}
 
-	contact, err := repositories.GetContact(database.Database, acr.ID)
+	contact, err := repositories.GetContact(database.Database, body.ID)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		io.WriteString(w, `{"error": "Requested contact does not exist"}`)
@@ -268,20 +232,8 @@ func AddToContactList(w http.ResponseWriter, r *http.Request, userID uint32) {
 	w.WriteHeader(http.StatusOK)
 }
 
-type deleteFromContactListRequest struct {
-	ID uint32 `json:"id"`
-}
-
-func RemoveFromContactList(w http.ResponseWriter, r *http.Request, userID uint32) {
-	var dcr deleteFromContactListRequest
-	err := json.NewDecoder(r.Body).Decode(&dcr)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		io.WriteString(w, `{"error": "Request body couldn't be parsed as JSON"}`)
-		return
-	}
-
-	if dcr.ID == 0 {
+func RemoveFromContactList(w http.ResponseWriter, r *http.Request, userID uint32, body Request) {
+	if body.ID == 0 {
 		w.WriteHeader(http.StatusBadRequest)
 		io.WriteString(w, `{"error": "ID field is missing"}`)
 		return
@@ -309,7 +261,7 @@ func RemoveFromContactList(w http.ResponseWriter, r *http.Request, userID uint32
 		return
 	}
 
-	err = repositories.DeleteContactFromContactList(database.Database, contactList.ID, dcr.ID)
+	err = repositories.DeleteContactFromContactList(database.Database, contactList.ID, body.ID)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		io.WriteString(w, `{"error": "Failed to add contact to contact-list"}`)
