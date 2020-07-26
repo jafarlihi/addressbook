@@ -29,33 +29,39 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, `{"error": "Request body couldn't be parsed as JSON"}`)
 		return
 	}
+
 	if acr.Username == "" || acr.Email == "" || acr.Password == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		io.WriteString(w, `{"error": "Username, email, or password field(s) is/are missing"}`)
 		return
 	}
+
 	if !regexp.MustCompile(`^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$`).MatchString(acr.Email) {
 		w.WriteHeader(http.StatusBadRequest)
 		io.WriteString(w, `{"error": "Provided email address is malformed"}`)
 		return
 	}
+
 	if len(acr.Password) < 6 {
 		w.WriteHeader(http.StatusBadRequest)
 		io.WriteString(w, `{"error": "Password length can't be smaller than 6"}`)
 		return
 	}
+
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(acr.Password), bcrypt.DefaultCost)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		io.WriteString(w, `{"error": "Failed to hash the password"}`)
 		return
 	}
+
 	id, err := repositories.CreateUser(database.Database, acr.Username, acr.Email, string(passwordHash))
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		io.WriteString(w, `{"error": "Failed to create the user"}`)
 		return
 	}
+
 	jsonResponse, _ := json.Marshal(map[string]int64{"id": id})
 	w.WriteHeader(http.StatusOK)
 	io.WriteString(w, string(jsonResponse))
@@ -80,16 +86,19 @@ func CreateToken(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, `{"error": "Request body couldn't be parsed as JSON"}`)
 		return
 	}
+
 	if tcr.Username == "" && tcr.Email == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		io.WriteString(w, `{"error": "Username and email fields are missing, at least one is required"}`)
 		return
 	}
+
 	if tcr.Password == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		io.WriteString(w, `{"error": "Password field is missing"}`)
 		return
 	}
+
 	var user *models.User
 	if tcr.Username != "" {
 		user, err = repositories.GetUserByUsername(database.Database, tcr.Username)
@@ -107,12 +116,14 @@ func CreateToken(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
+
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(tcr.Password))
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		io.WriteString(w, `{"error": "Wrong password"}`)
 		return
 	}
+
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"userID": user.ID,
 	})
@@ -122,6 +133,7 @@ func CreateToken(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, `{"error": "Failed to create token"}`)
 		return
 	}
+
 	var response tokenCreationResponse
 	response.Token = tokenString
 	response.User = *user

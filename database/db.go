@@ -19,11 +19,13 @@ func InitDatabase() {
 		logger.Log.Error("Failed to connect to the database, error: " + err.Error())
 		os.Exit(1)
 	}
+
 	err = Database.Ping()
 	if err != nil {
 		logger.Log.Error("Failed to connect to the database, error: " + err.Error())
 		os.Exit(1)
 	}
+
 	schemaBytes, err := ioutil.ReadFile("schema.sql")
 	if err != nil {
 		logger.Log.Warningf("Failed to read the schema.sql for database schema initialization. Skipping procedure. Error: " + err.Error())

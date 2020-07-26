@@ -34,6 +34,7 @@ func InitConfig() {
 		os.Exit(1)
 	}
 	defer configFile.Close()
+
 	jsonParser := json.NewDecoder(configFile)
 	err = jsonParser.Decode(&Config)
 	if err != nil {

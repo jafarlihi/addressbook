@@ -48,6 +48,7 @@ func GetContactsByUserID(db *sql.DB, userID uint32) ([]*models.Contact, error) {
 		return nil, err
 	}
 	defer rows.Close()
+
 	contacts := make([]*models.Contact, 0)
 	for rows.Next() {
 		contact := &models.Contact{}
@@ -68,6 +69,7 @@ func GetContactsOfContactList(db *sql.DB, contactListID uint32) ([]*models.Conta
 		return nil, err
 	}
 	defer rows.Close()
+
 	contacts := make([]*models.Contact, 0)
 	for rows.Next() {
 		contact := &models.Contact{}
