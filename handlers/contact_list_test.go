@@ -129,6 +129,27 @@ func TestCreateContactList(t *testing.T) {
 	}
 }
 
+func TestDeleteContactListWithNoToken(t *testing.T) {
+	req, err := http.NewRequest("DELETE", "/api/contact-list/1", strings.NewReader(""))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rr := httptest.NewRecorder()
+	router := mux.NewRouter()
+	router.HandleFunc("/api/contact-list/{id}", handlers.DeleteContactList).Methods("DELETE")
+	router.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusUnauthorized {
+		t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusUnauthorized)
+	}
+
+	expected := `{"error": "Token is missing"}`
+	if rr.Body.String() != expected {
+		t.Errorf("Handler returned unexpected body: got %v want %v", rr.Body.String(), expected)
+	}
+}
+
 func TestDeleteContactList(t *testing.T) {
 	jwtSecret := "secret"
 	config.Config.Jwt.SigningSecret = jwtSecret
