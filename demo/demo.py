@@ -100,7 +100,7 @@ if __name__ == "__main__":
     contactListID1 = json.loads(response.content)["id"]
     print('')
 
-    print('Creating a contact-list')
+    print('Creating another contact-list')
     payload = {'name': 'name2'}
     print('POSTing to /api/contact-list with payload: ' + json.dumps(payload))
     response = requests.post(address + '/api/contact-list',
