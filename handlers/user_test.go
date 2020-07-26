@@ -11,7 +11,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/jafarlihi/addressbook/config"
 	"github.com/jafarlihi/addressbook/database"
-	"github.com/jafarlihi/addressbook/handlers"
+	"github.com/jafarlihi/addressbook/router"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -22,8 +22,8 @@ func TestCreateUserWithNoBody(t *testing.T) {
 	}
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(handlers.CreateUser)
-	handler.ServeHTTP(rr, req)
+	router := router.ConstructRouter()
+	router.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusBadRequest {
 		t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusBadRequest)
@@ -42,8 +42,8 @@ func TestCreateUserWithMissingField(t *testing.T) {
 	}
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(handlers.CreateUser)
-	handler.ServeHTTP(rr, req)
+	router := router.ConstructRouter()
+	router.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusBadRequest {
 		t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusBadRequest)
@@ -62,8 +62,8 @@ func TestCreateUserWithInvalidEmail(t *testing.T) {
 	}
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(handlers.CreateUser)
-	handler.ServeHTTP(rr, req)
+	router := router.ConstructRouter()
+	router.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusBadRequest {
 		t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusBadRequest)
@@ -82,8 +82,8 @@ func TestCreateUserWithShortPassword(t *testing.T) {
 	}
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(handlers.CreateUser)
-	handler.ServeHTTP(rr, req)
+	router := router.ConstructRouter()
+	router.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusBadRequest {
 		t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusBadRequest)
@@ -120,8 +120,8 @@ func TestCreateUser(t *testing.T) {
 	mock.ExpectQuery("^INSERT INTO users").WithArgs(username, email, sqlmock.AnyArg()).WillReturnRows(rows)
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(handlers.CreateUser)
-	handler.ServeHTTP(rr, req)
+	router := router.ConstructRouter()
+	router.ServeHTTP(rr, req)
 
 	if err := mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("There were unfulfilled expectations: %s", err)
@@ -177,8 +177,8 @@ func TestCreateToken(t *testing.T) {
 	}
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(handlers.CreateToken)
-	handler.ServeHTTP(rr, req)
+	router := router.ConstructRouter()
+	router.ServeHTTP(rr, req)
 
 	if err := mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("There were unfulfilled expectations: %s", err)
@@ -223,8 +223,8 @@ func TestCreateTokenWithWrongPassword(t *testing.T) {
 	mock.ExpectQuery("^SELECT (.*) FROM users").WithArgs(username).WillReturnRows(rows)
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(handlers.CreateToken)
-	handler.ServeHTTP(rr, req)
+	router := router.ConstructRouter()
+	router.ServeHTTP(rr, req)
 
 	if err := mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("There were unfulfilled expectations: %s", err)

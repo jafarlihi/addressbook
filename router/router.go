@@ -9,8 +9,12 @@ import (
 
 func ConstructRouter() *mux.Router {
 	router := mux.NewRouter()
-	router.HandleFunc("/api/user", handlers.CreateUser).Methods("POST")
-	router.HandleFunc("/api/user/token", handlers.CreateToken).Methods("POST")
+	router.HandleFunc("/api/user", func(w http.ResponseWriter, r *http.Request) {
+		handlers.WithRequestBody(w, r, handlers.CreateUser)
+	}).Methods("POST")
+	router.HandleFunc("/api/user/token", func(w http.ResponseWriter, r *http.Request) {
+		handlers.WithRequestBody(w, r, handlers.CreateToken)
+	}).Methods("POST")
 	router.HandleFunc("/api/contact", func(w http.ResponseWriter, r *http.Request) {
 		handlers.AuthenticatedWithRequestBody(w, r, handlers.CreateContact)
 	}).Methods("POST")

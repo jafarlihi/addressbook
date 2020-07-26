@@ -19,6 +19,18 @@ func Authenticated(w http.ResponseWriter, r *http.Request, f func(http.ResponseW
 	f(w, r, userID)
 }
 
+func WithRequestBody(w http.ResponseWriter, r *http.Request, f func(http.ResponseWriter, *http.Request, Request)) {
+	var body Request
+	err := json.NewDecoder(r.Body).Decode(&body)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		io.WriteString(w, `{"error": "Request body couldn't be parsed as JSON"}`)
+		return
+	}
+
+	f(w, r, body)
+}
+
 func AuthenticatedWithRequestBody(w http.ResponseWriter, r *http.Request, f func(http.ResponseWriter, *http.Request, uint32, Request)) {
 	var body Request
 	err := json.NewDecoder(r.Body).Decode(&body)
