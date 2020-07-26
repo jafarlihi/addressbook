@@ -1,7 +1,5 @@
 # addressbook
 
-(this is a job interview assignment)
-
 ### Config
 
 `config.json` file has 3 parameters that need to be configured:
