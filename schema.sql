@@ -13,7 +13,7 @@ CREATE TABLE users (
 
 CREATE TABLE contact_lists (
     id serial NOT NULL,
-    user_id INTEGER NOT NULL,
+    user_id integer NOT NULL,
     name character varying NOT NULL,
     PRIMARY KEY(id),
     FOREIGN KEY (user_id) REFERENCES users (id) ON UPDATE CASCADE ON DELETE CASCADE
@@ -21,7 +21,7 @@ CREATE TABLE contact_lists (
 
 CREATE TABLE contacts (
     id serial NOT NULL,
-    user_id INTEGER NOT NULL,
+    user_id integer NOT NULL,
     name character varying NOT NULL,
     surname character varying NOT NULL,
     email character varying NOT NULL,
@@ -30,8 +30,8 @@ CREATE TABLE contacts (
 );
 
 CREATE TABLE contact_list_entries (
-    contact_list INTEGER NOT NULL,
-    contact INTEGER NOT NULL,
+    contact_list integer NOT NULL,
+    contact integer NOT NULL,
     UNIQUE (contact_list, contact),
     FOREIGN KEY (contact_list) REFERENCES contact_lists (id) ON UPDATE CASCADE ON DELETE CASCADE,
     FOREIGN KEY (contact) REFERENCES contacts (id) ON UPDATE CASCADE ON DELETE CASCADE
