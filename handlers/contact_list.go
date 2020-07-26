@@ -16,7 +16,7 @@ type contactListCreationRequest struct {
 	Name string `json:"name"`
 }
 
-func CreateContactList(w http.ResponseWriter, r *http.Request) {
+func CreateContactList(w http.ResponseWriter, r *http.Request, userID uint32) {
 	var ccr contactListCreationRequest
 	err := json.NewDecoder(r.Body).Decode(&ccr)
 	if err != nil {
@@ -28,13 +28,6 @@ func CreateContactList(w http.ResponseWriter, r *http.Request) {
 	if ccr.Name == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		io.WriteString(w, `{"error": "Name field is missing"}`)
-		return
-	}
-
-	userID, err := services.ParseAuthorizationHeader(r.Header.Get("Authorization"))
-	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		io.WriteString(w, `{"error": "`+err.Error()+`"}`)
 		return
 	}
 
@@ -50,20 +43,13 @@ func CreateContactList(w http.ResponseWriter, r *http.Request) {
 	io.WriteString(w, string(jsonResponse))
 }
 
-func DeleteContactList(w http.ResponseWriter, r *http.Request) {
+func DeleteContactList(w http.ResponseWriter, r *http.Request, userID uint32) {
 	params := mux.Vars(r)
 	idString := params["id"]
 	id, err := strconv.ParseUint(idString, 10, 32)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		io.WriteString(w, `{"error": "Provided ID can't be parsed as an integer"}`)
-		return
-	}
-
-	userID, err := services.ParseAuthorizationHeader(r.Header.Get("Authorization"))
-	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		io.WriteString(w, `{"error": "`+err.Error()+`"}`)
 		return
 	}
 
@@ -90,7 +76,7 @@ func DeleteContactList(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func GetContactLists(w http.ResponseWriter, r *http.Request) {
+func GetContactLists(w http.ResponseWriter, r *http.Request, userID uint32) {
 	userID, err := services.ParseAuthorizationHeader(r.Header.Get("Authorization"))
 	if err != nil {
 		w.WriteHeader(http.StatusUnauthorized)
@@ -115,20 +101,13 @@ func GetContactLists(w http.ResponseWriter, r *http.Request) {
 	io.WriteString(w, string(jsonResponse))
 }
 
-func GetContactList(w http.ResponseWriter, r *http.Request) {
+func GetContactList(w http.ResponseWriter, r *http.Request, userID uint32) {
 	params := mux.Vars(r)
 	idString := params["id"]
 	id, err := strconv.ParseUint(idString, 10, 32)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		io.WriteString(w, `{"error": "Provided ID can't be parsed as an integer"}`)
-		return
-	}
-
-	userID, err := services.ParseAuthorizationHeader(r.Header.Get("Authorization"))
-	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		io.WriteString(w, `{"error": "`+err.Error()+`"}`)
 		return
 	}
 
@@ -159,7 +138,7 @@ type contactListSearchRequest struct {
 	Term string `json:"term"`
 }
 
-func SearchContactLists(w http.ResponseWriter, r *http.Request) {
+func SearchContactLists(w http.ResponseWriter, r *http.Request, userID uint32) {
 	var csr contactListSearchRequest
 	err := json.NewDecoder(r.Body).Decode(&csr)
 	if err != nil {
@@ -171,13 +150,6 @@ func SearchContactLists(w http.ResponseWriter, r *http.Request) {
 	if csr.Term == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		io.WriteString(w, `{"error": "Term field is missing"}`)
-		return
-	}
-
-	userID, err := services.ParseAuthorizationHeader(r.Header.Get("Authorization"))
-	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		io.WriteString(w, `{"error": "`+err.Error()+`"}`)
 		return
 	}
 
@@ -193,20 +165,13 @@ func SearchContactLists(w http.ResponseWriter, r *http.Request) {
 	io.WriteString(w, string(jsonResponse))
 }
 
-func ListContactsOfContactList(w http.ResponseWriter, r *http.Request) {
+func GetContactsOfContactList(w http.ResponseWriter, r *http.Request, userID uint32) {
 	params := mux.Vars(r)
 	idString := params["id"]
 	id, err := strconv.ParseUint(idString, 10, 32)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		io.WriteString(w, `{"error": "Provided ID can't be parsed as an integer"}`)
-		return
-	}
-
-	userID, err := services.ParseAuthorizationHeader(r.Header.Get("Authorization"))
-	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		io.WriteString(w, `{"error": "`+err.Error()+`"}`)
 		return
 	}
 
@@ -244,7 +209,7 @@ type addToContactListRequest struct {
 	ID uint32 `json:"id"`
 }
 
-func AddToContactList(w http.ResponseWriter, r *http.Request) {
+func AddToContactList(w http.ResponseWriter, r *http.Request, userID uint32) {
 	var acr addToContactListRequest
 	err := json.NewDecoder(r.Body).Decode(&acr)
 	if err != nil {
@@ -265,13 +230,6 @@ func AddToContactList(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		io.WriteString(w, `{"error": "Provided ID can't be parsed as an integer"}`)
-		return
-	}
-
-	userID, err := services.ParseAuthorizationHeader(r.Header.Get("Authorization"))
-	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		io.WriteString(w, `{"error": "`+err.Error()+`"}`)
 		return
 	}
 
@@ -314,7 +272,7 @@ type deleteFromContactListRequest struct {
 	ID uint32 `json:"id"`
 }
 
-func RemoveFromContactList(w http.ResponseWriter, r *http.Request) {
+func RemoveFromContactList(w http.ResponseWriter, r *http.Request, userID uint32) {
 	var dcr deleteFromContactListRequest
 	err := json.NewDecoder(r.Body).Decode(&dcr)
 	if err != nil {
@@ -335,13 +293,6 @@ func RemoveFromContactList(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		io.WriteString(w, `{"error": "Provided ID can't be parsed as an integer"}`)
-		return
-	}
-
-	userID, err := services.ParseAuthorizationHeader(r.Header.Get("Authorization"))
-	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		io.WriteString(w, `{"error": "`+err.Error()+`"}`)
 		return
 	}
 

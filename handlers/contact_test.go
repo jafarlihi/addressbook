@@ -9,21 +9,36 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/dgrijalva/jwt-go"
-	"github.com/gorilla/mux"
 	"github.com/jafarlihi/addressbook/config"
 	"github.com/jafarlihi/addressbook/database"
-	"github.com/jafarlihi/addressbook/handlers"
+	"github.com/jafarlihi/addressbook/router"
 )
 
 func TestCreateContactNoBody(t *testing.T) {
+	jwtSecret := "secret"
+	config.Config.Jwt.SigningSecret = jwtSecret
+
+	var userID uint32
+	userID = 1
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"userID": userID,
+	})
+	tokenString, err := token.SignedString([]byte(jwtSecret))
+	if err != nil {
+		t.Fatal("Failed to create JWT token")
+	}
+
 	req, err := http.NewRequest("POST", "/api/contact", strings.NewReader(""))
 	if err != nil {
 		t.Fatal(err)
 	}
 
+	req.Header.Add("Authorization", "Bearer "+tokenString)
+
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(handlers.CreateContact)
-	handler.ServeHTTP(rr, req)
+	router := router.ConstructRouter()
+	router.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusBadRequest {
 		t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusBadRequest)
@@ -36,14 +51,30 @@ func TestCreateContactNoBody(t *testing.T) {
 }
 
 func TestCreateContactWithMissingField(t *testing.T) {
+	jwtSecret := "secret"
+	config.Config.Jwt.SigningSecret = jwtSecret
+
+	var userID uint32
+	userID = 1
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"userID": userID,
+	})
+	tokenString, err := token.SignedString([]byte(jwtSecret))
+	if err != nil {
+		t.Fatal("Failed to create JWT token")
+	}
+
 	req, err := http.NewRequest("POST", "/api/contact", strings.NewReader(`{"name": "name", "surname": "surname"}`))
 	if err != nil {
 		t.Fatal(err)
 	}
 
+	req.Header.Add("Authorization", "Bearer "+tokenString)
+
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(handlers.CreateContact)
-	handler.ServeHTTP(rr, req)
+	router := router.ConstructRouter()
+	router.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusBadRequest {
 		t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusBadRequest)
@@ -62,8 +93,8 @@ func TestCreateContactWithNoAuthorizationHeader(t *testing.T) {
 	}
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(handlers.CreateContact)
-	handler.ServeHTTP(rr, req)
+	router := router.ConstructRouter()
+	router.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusUnauthorized {
 		t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusUnauthorized)
@@ -114,8 +145,8 @@ func TestCreateContact(t *testing.T) {
 	req.Header.Add("Authorization", "Bearer "+tokenString)
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(handlers.CreateContact)
-	handler.ServeHTTP(rr, req)
+	router := router.ConstructRouter()
+	router.ServeHTTP(rr, req)
 
 	if err := mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("There were unfulfilled expectations: %s", err)
@@ -171,8 +202,7 @@ func TestDeleteContact(t *testing.T) {
 	req.Header.Add("Authorization", "Bearer "+tokenString)
 
 	rr := httptest.NewRecorder()
-	router := mux.NewRouter()
-	router.HandleFunc("/api/contact/{id}", handlers.DeleteContact).Methods("DELETE")
+	router := router.ConstructRouter()
 	router.ServeHTTP(rr, req)
 
 	if err := mock.ExpectationsWereMet(); err != nil {
@@ -230,8 +260,7 @@ func TestDeleteContactBelongingToAnotherUser(t *testing.T) {
 	req.Header.Add("Authorization", "Bearer "+tokenString)
 
 	rr := httptest.NewRecorder()
-	router := mux.NewRouter()
-	router.HandleFunc("/api/contact/{id}", handlers.DeleteContact).Methods("DELETE")
+	router := router.ConstructRouter()
 	router.ServeHTTP(rr, req)
 
 	if err := mock.ExpectationsWereMet(); err != nil {

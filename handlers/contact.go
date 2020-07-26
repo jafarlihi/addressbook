@@ -10,7 +10,6 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/jafarlihi/addressbook/database"
 	"github.com/jafarlihi/addressbook/repositories"
-	"github.com/jafarlihi/addressbook/services"
 )
 
 type contactCreationRequest struct {
@@ -19,7 +18,7 @@ type contactCreationRequest struct {
 	Email   string `json:"email"`
 }
 
-func CreateContact(w http.ResponseWriter, r *http.Request) {
+func CreateContact(w http.ResponseWriter, r *http.Request, userID uint32) {
 	var ccr contactCreationRequest
 	err := json.NewDecoder(r.Body).Decode(&ccr)
 	if err != nil {
@@ -40,13 +39,6 @@ func CreateContact(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userID, err := services.ParseAuthorizationHeader(r.Header.Get("Authorization"))
-	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		io.WriteString(w, `{"error": "`+err.Error()+`"}`)
-		return
-	}
-
 	id, err := repositories.CreateContact(database.Database, userID, ccr.Name, ccr.Surname, ccr.Email)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -59,20 +51,13 @@ func CreateContact(w http.ResponseWriter, r *http.Request) {
 	io.WriteString(w, string(jsonResponse))
 }
 
-func DeleteContact(w http.ResponseWriter, r *http.Request) {
+func DeleteContact(w http.ResponseWriter, r *http.Request, userID uint32) {
 	params := mux.Vars(r)
 	idString := params["id"]
 	id, err := strconv.ParseUint(idString, 10, 32)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		io.WriteString(w, `{"error": "Provided ID can't be parsed as an integer"}`)
-		return
-	}
-
-	userID, err := services.ParseAuthorizationHeader(r.Header.Get("Authorization"))
-	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		io.WriteString(w, `{"error": "`+err.Error()+`"}`)
 		return
 	}
 
@@ -99,14 +84,7 @@ func DeleteContact(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func GetContacts(w http.ResponseWriter, r *http.Request) {
-	userID, err := services.ParseAuthorizationHeader(r.Header.Get("Authorization"))
-	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		io.WriteString(w, `{"error": "`+err.Error()+`"}`)
-		return
-	}
-
+func GetContacts(w http.ResponseWriter, r *http.Request, userID uint32) {
 	contacts, err := repositories.GetContactsByUserID(database.Database, userID)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -125,20 +103,13 @@ func GetContacts(w http.ResponseWriter, r *http.Request) {
 	io.WriteString(w, string(jsonResponse))
 }
 
-func GetContact(w http.ResponseWriter, r *http.Request) {
+func GetContact(w http.ResponseWriter, r *http.Request, userID uint32) {
 	params := mux.Vars(r)
 	idString := params["id"]
 	id, err := strconv.ParseUint(idString, 10, 32)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		io.WriteString(w, `{"error": "Provided ID can't be parsed as an integer"}`)
-		return
-	}
-
-	userID, err := services.ParseAuthorizationHeader(r.Header.Get("Authorization"))
-	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		io.WriteString(w, `{"error": "`+err.Error()+`"}`)
 		return
 	}
 

@@ -9,21 +9,36 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/dgrijalva/jwt-go"
-	"github.com/gorilla/mux"
 	"github.com/jafarlihi/addressbook/config"
 	"github.com/jafarlihi/addressbook/database"
-	"github.com/jafarlihi/addressbook/handlers"
+	"github.com/jafarlihi/addressbook/router"
 )
 
 func TestCreateContactListNoBody(t *testing.T) {
+	jwtSecret := "secret"
+	config.Config.Jwt.SigningSecret = jwtSecret
+
+	var userID uint32
+	userID = 1
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"userID": userID,
+	})
+	tokenString, err := token.SignedString([]byte(jwtSecret))
+	if err != nil {
+		t.Fatal("Failed to create JWT token")
+	}
+
 	req, err := http.NewRequest("POST", "/api/contact-list", strings.NewReader(""))
 	if err != nil {
 		t.Fatal(err)
 	}
 
+	req.Header.Add("Authorization", "Bearer "+tokenString)
+
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(handlers.CreateContactList)
-	handler.ServeHTTP(rr, req)
+	router := router.ConstructRouter()
+	router.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusBadRequest {
 		t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusBadRequest)
@@ -36,14 +51,30 @@ func TestCreateContactListNoBody(t *testing.T) {
 }
 
 func TestCreateContactListWithNoNameField(t *testing.T) {
+	jwtSecret := "secret"
+	config.Config.Jwt.SigningSecret = jwtSecret
+
+	var userID uint32
+	userID = 1
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"userID": userID,
+	})
+	tokenString, err := token.SignedString([]byte(jwtSecret))
+	if err != nil {
+		t.Fatal("Failed to create JWT token")
+	}
+
 	req, err := http.NewRequest("POST", "/api/contact-list", strings.NewReader(`{"notName": "something"}`))
 	if err != nil {
 		t.Fatal(err)
 	}
 
+	req.Header.Add("Authorization", "Bearer "+tokenString)
+
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(handlers.CreateContactList)
-	handler.ServeHTTP(rr, req)
+	router := router.ConstructRouter()
+	router.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusBadRequest {
 		t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusBadRequest)
@@ -62,8 +93,8 @@ func TestCreateContactListWithNoToken(t *testing.T) {
 	}
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(handlers.CreateContactList)
-	handler.ServeHTTP(rr, req)
+	router := router.ConstructRouter()
+	router.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusUnauthorized {
 		t.Errorf("Handler returned wrong status code: got %v want %v", status, http.StatusUnauthorized)
@@ -112,8 +143,8 @@ func TestCreateContactList(t *testing.T) {
 	req.Header.Add("Authorization", "Bearer "+tokenString)
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(handlers.CreateContactList)
-	handler.ServeHTTP(rr, req)
+	router := router.ConstructRouter()
+	router.ServeHTTP(rr, req)
 
 	if err := mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("There were unfulfilled expectations: %s", err)
@@ -136,8 +167,7 @@ func TestDeleteContactListWithNoToken(t *testing.T) {
 	}
 
 	rr := httptest.NewRecorder()
-	router := mux.NewRouter()
-	router.HandleFunc("/api/contact-list/{id}", handlers.DeleteContactList).Methods("DELETE")
+	router := router.ConstructRouter()
 	router.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusUnauthorized {
@@ -188,8 +218,7 @@ func TestDeleteContactList(t *testing.T) {
 	req.Header.Add("Authorization", "Bearer "+tokenString)
 
 	rr := httptest.NewRecorder()
-	router := mux.NewRouter()
-	router.HandleFunc("/api/contact-list/{id}", handlers.DeleteContactList).Methods("DELETE")
+	router := router.ConstructRouter()
 	router.ServeHTTP(rr, req)
 
 	if err := mock.ExpectationsWereMet(); err != nil {
