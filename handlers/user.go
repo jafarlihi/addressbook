@@ -58,7 +58,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	id, err := repositories.CreateUser(database.Database, acr.Username, acr.Email, string(passwordHash))
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		io.WriteString(w, `{"error": "Failed to create the user"}`)
+		io.WriteString(w, `{"error": "Failed to create the user, it might already exist"}`)
 		return
 	}
 
